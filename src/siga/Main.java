@@ -1,58 +1,65 @@
 package siga;
 
-/**
- * Demonstra os três deslizes acontecendo. Execute e observe a saída:
- * é dela que partem as etapas da ficha de atividade prática.
- */
 public class Main {
-
     public static void main(String[] args) {
-        System.out.println("=== SIGA - Aula 11: Decorator e Composite (codigo inicial) ===");
+        System.out.println("==================================================");
+        System.out.println("  SIGA — DEMONSTRAÇÃO DECORATOR E COMPOSITE");
+        System.out.println("==================================================\n");
 
-        System.out.println();
-        System.out.println("1) Relatorios: uma subclasse por combinacao");
-        Relatorio[] variantes = {
-            new RelatorioDeAlunos(),
-            new RelatorioComCabecalho(),
-            new RelatorioComNumeracao(),
-            new RelatorioComCabecalhoENumeracao(),
-            new RelatorioComCabecalhoENumeracaoEMarcaDagua()
-        };
-        for (Relatorio r : variantes) {
-            System.out.println("   --- " + r.getClass().getSimpleName() + " ---");
-            for (String linha : r.gerar().split("\n")) {
-                System.out.println("   " + linha);
-            }
+        // -------------------------------------------------------------
+        // PARTE 1: DECORATOR
+        // -------------------------------------------------------------
+        System.out.println(">>> 1. DEMONSTRAÇÃO DO PADRÃO DECORATOR <<<\n");
+
+        Relatorio relatorioBase = new RelatorioDeAlunos();
+
+        // Pilha 1: Base -> Cabeçalho -> Numeração
+        System.out.println("--- Pilha 1: Com Cabecalho e depois Numeracao ---");
+        Relatorio pilha1 = new ComNumeracao(new ComCabecalho(relatorioBase));
+        for (String linha : pilha1.gerar()) {
+            System.out.println(linha);
         }
-        System.out.println("   >> DESLIZE 1: sao 4 subclasses para 3 caracteristicas opcionais,");
-        System.out.println("      e faltam as combinacoes que ninguem pediu ainda. Com 3 opcionais");
-        System.out.println("      independentes seriam 8 classes; com 4, seriam 16.");
-        System.out.println("   >> DESLIZE 2: o texto do cabecalho esta escrito em TRES classes.");
 
-        System.out.println();
-        System.out.println("2) Estrutura curricular percorrida com instanceof");
-        Modulo curso = new Modulo("DSM - Desenvolvimento de Software Multiplataforma");
+        // Pilha 2: Base -> Numeração -> Cabeçalho -> Marca d'água (ordem invertida)
+        System.out.println("\n--- Pilha 2: Com Numeracao na base, depois Cabecalho e Marca d'Agua ---");
+        Relatorio pilha2 = new ComMarcaDagua(new ComCabecalho(new ComNumeracao(relatorioBase)));
+        for (String linha : pilha2.gerar()) {
+            System.out.println(linha);
+        }
 
-        Modulo primeiro = new Modulo("1o semestre");
-        primeiro.adicionar(new Disciplina("Algoritmos", 80));
-        primeiro.adicionar(new Disciplina("Banco de Dados I", 60));
+        // -------------------------------------------------------------
+        // PARTE 2: COMPOSITE
+        // -------------------------------------------------------------
+        System.out.println("\n\n>>> 2. DEMONSTRAÇÃO DO PADRÃO COMPOSITE <<<\n");
 
-        Modulo segundo = new Modulo("2o semestre");
-        segundo.adicionar(new Disciplina("Tecnicas de Programacao II", 80));
-        segundo.adicionar(new Disciplina("Desenvolvimento Web II", 80));
+        // Montando módulos de nível 1 e 2 (estrutura original com 340h)
+        Modulo grade = new Modulo("Estrutura Curricular DSM");
 
-        curso.adicionar(primeiro);
-        curso.adicionar(segundo);
-        curso.adicionar(new Disciplina("Projeto Integrador", 40));
+        Modulo semestre1 = new Modulo("1º Semestre");
+        semestre1.adicionar(new Disciplina("Algoritmos e Lógica", 80));
+        semestre1.adicionar(new Disciplina("Modelagem de Banco de Dados", 80));
 
-        GradeCurricular grade = new GradeCurricular();
-        grade.imprimir(curso, 1);
-        System.out.println("   Carga total: " + grade.calcularCarga(curso) + "h");
-        System.out.println("   >> DESLIZE 3: a travessia com instanceof aparece DUAS vezes,");
-        System.out.println("      uma em calcularCarga e outra em imprimir. Uma terceira");
-        System.out.println("      operacao exigiria uma terceira copia.");
+        Modulo semestre2 = new Modulo("2º Semestre");
+        semestre2.adicionar(new Disciplina("Engenharia de Software I", 60));
+        semestre2.adicionar(new Disciplina("Estruturas de Dados", 80));
+        semestre2.adicionar(new Disciplina("Sistemas Operacionais", 40));
 
-        System.out.println();
-        System.out.println("Sua tarefa: ver o README.md e a ficha de atividade pratica.");
+        grade.adicionar(semestre1);
+        grade.adicionar(semestre2);
+
+        System.out.printf("Carga horária inicial (deve ser 340h): %dh%n%n", grade.getCargaHoraria());
+        grade.imprimir(0);
+
+        // Etapa 5: Prova do Composite com submódulo de 3º nível
+        System.out.println("\n--- Adicionando Submódulo de 3º Nível (Trilha de Especialização) ---");
+        Modulo trilhaSeguranca = new Modulo("Trilha: Segurança da Informação");
+        trilhaSeguranca.adicionar(new Disciplina("Segurança em Aplicações Web", 40));
+        trilhaSeguranca.adicionar(new Disciplina("Criptografia e Redes", 40));
+
+        // Adiciona a trilha dentro do 2º semestre (3º nível de aninhamento)
+        semestre2.adicionar(trilhaSeguranca);
+
+        System.out.printf("Nova carga horária total: %dh%n%n", grade.getCargaHoraria());
+        grade.imprimir(0);
     }
 }
