@@ -83,3 +83,26 @@ Conforme a ficha de atividade prática: identificadores em português, um arquiv
   * Para $n = 4$ características opcionais independentes: $2^4 = 16$ combinações possíveis.
   * Seriam necessárias **16 classes** para cobrir todas as variações se mantivéssemos a abordagem por herança rígida.
   * Com o padrão **Decorator**, necessitamos apenas de **4 classes decoradoras** (uma para cada funcionalidade) para compor dinamicamente todas as 16 combinações em tempo de execução.
+  ## Relatório Técnico — Padrões Estruturais II (Decorator e Composite)
+
+### 1. Desafio 1: Explosão Combinatória ($2^n$) e Duplicação (Decorator)
+* **Diagnóstico:** No modelo inicial com herança estática, cada combinação de funcionalidades opcionais exigia uma nova subclasse. Para 3 opcionais (cabeçalho, numeração e marca d'água), o total combinatório seria de $2^3 = 8$ classes. Ao projetar uma 4ª característica (rodapé), a fórmula $2^n$ resultaria em $2^4 = 16$ classes. Além disso, o código de formatação e texto repetia-se por várias classes, violando o princípio DRY.
+* **Solução:** Implementou-se o padrão **Decorator** com uma classe abstrata `DecoradorRelatorio` (que implementa `Relatorio` e mantém uma referência a outro `Relatorio`) e três decoradores concretos (`ComCabecalho`, `ComNumeracao` e `ComMarcaDagua`).
+* **Resultado:** Cada comportamento foi centralizado em uma única classe. Três opcionais são atendidos por apenas 3 decoradores que podem ser empilhados dinamicamente em tempo de execução, cobrindo todas as combinações possíveis sem duplicação de código.
+
+### 2. Desafio 2: Remoção do `instanceof` e Hierarquias Profundas (Composite)
+* **Diagnóstico:** Anteriormente, `Modulo` guardava uma lista genérica de `Object`, obrigando a classe externa `GradeCurricular` a inspecionar tipos com `instanceof` para calcular a carga horária e imprimir os elementos. Qualquer novo tipo de nó forçaria alterações nessa lógica de travessia, quebrando o Princípio Aberto/Fechado (OCP).
+* **Solução:** Introduziu-se a interface comum `ItemCurricular` definindo `getNome()`, `getCargaHoraria()` e `imprimir(int nivel)`.
+  * `Disciplina` atua como **Folha** (Leaf).
+  * `Modulo` atua como **Composto** (Composite), armazenando uma coleção estritamente tipada de `ItemCurricular` e delegando os cálculos recursivamente.
+  * A classe `GradeCurricular` foi eliminada, pois as operações tornaram-se responsabilidades intrínsecas dos próprios elementos da árvore.
+
+### 3. Decisão de Projeto: Métodos de Gestão de Filhos (`adicionar`/`remover`)
+* **Decisão adotada:** Os métodos `adicionar` e `remover` foram declarados **apenas na classe `Modulo`** (Segurança de Tipos), e não na interface `ItemCurricular`.
+* **Justificativa:** 
+  * Se esses métodos fossem colocados na interface `ItemCurricular` (visando Uniformidade), a classe folha `Disciplina` seria obrigada a implementá-los, tipicamente lançando `UnsupportedOperationException`. Isso violaria o **Princípio de Substituição de Liskov (LSP)**, pois uma `Disciplina` não se comportaria adequadamente no lugar de um `ItemCurricular` arbitrário para operações estruturais.
+  * Mantendo `adicionar` e `remover` exclusivamente em `Modulo`, preserva-se a segurança em tempo de compilação: é impossível tentar adicionar itens dentro de uma disciplina folha por engano.
+
+### 4. Prova do Composite com Submódulo de 3º Nível
+* Foi adicionado com sucesso um submódulo de terceiro nível (`Trilha: Segurança da Informação`) dentro de um módulo de segundo nível (`2º Semestre`).
+* Como a coleção de `Modulo` utiliza o tipo genérico `ItemCurricular`, a árvore suporta infinitos níveis de aninhamento sem exigir qualquer alteração no código do cliente.
