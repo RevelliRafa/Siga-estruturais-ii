@@ -71,3 +71,15 @@ A apostila adota a primeira. Você pode adotar a outra — mas **justifique a es
 Conforme a ficha de atividade prática: identificadores em português, um arquivo `.java` por classe pública, código formatado, entrega no repositório Git com README e commits descritivos. O uso de IA para gerar o código é proibido nesta atividade (ver seção 5.3 da ficha).
 
 > **Projeto Integrador:** a Etapa 2, com entrega na Aula 13, exige a aplicação justificada de ao menos um padrão estrutural. Com esta aula a frente estrutural fica completa — Adapter, Facade, Decorator e Composite —, e a equipe escolhe entre os quatro. Desconfie da tentação de usar o mais sofisticado: um Composite sobre uma estrutura que nunca passará de dois níveis é custo sem contrapartida.
+
+## Respostas da Atividade
+
+### Etapa 1 — Conta da Explosão Combinatória ($2^n$)
+* **Situação Atual:**
+  * O sistema possui 3 características opcionais independentes: Cabeçalho, Numeração e Marca d'Água.
+  * O número de combinações possíveis é dado por $2^n = 2^3 = 8$ combinações (incluindo o caso base sem opcionais).
+  * No código inicial foram implementadas apenas 4 subclasses concretas, deixando o sistema incompleto para as restantes combinações não previstas.
+* **Com a 4ª Característica (Rodapé):**
+  * Para $n = 4$ características opcionais independentes: $2^4 = 16$ combinações possíveis.
+  * Seriam necessárias **16 classes** para cobrir todas as variações se mantivéssemos a abordagem por herança rígida.
+  * Com o padrão **Decorator**, necessitamos apenas de **4 classes decoradoras** (uma para cada funcionalidade) para compor dinamicamente todas as 16 combinações em tempo de execução.
